@@ -23,11 +23,25 @@ def datiscuola():
 @app.route('/datipercorso', methods=['GET'])
 def datipercorso():
     percorsoInserita = request.args.get('percorsi') 
-    table = scuola[scuola['PERCORSO'].str.contains(percorsoInserita)][['DenominazioneScuola']].drop_duplicates(subset='DenominazioneScuola')
+    table = scuola[scuola['PERCORSO'].str.contains(percorsoInserita)][['DenominazioneScuola']].drop_duplicates(subset='DenominazioneScuola').sort_values(by = 'DenominazioneScuola')
     return render_template('risultato.html', table = table.to_html())
 
 @app.route('/grafico', methods=['GET'])
 def grafico():
+    
+    alunniPerIndirizzo = scuola.groupby('PERCORSO').sum()[['ALUNNIMASCHI','ALUNNIFEMMINE']]
+    alunniPerIndirizzo['AlunniTotali'] = alunniPerIndirizzo['ALUNNIMASCHI'] + alunniPerIndirizzo['ALUNNIFEMMINE']
+
+    labels = alunniPerIndirizzo.index
+    dati = alunniPerIndirizzo['AlunniTotali']
+    fig, ax = plt.subplots(figsize = (10, 8))
+    plt.subplots_adjust(bottom=0.3)
+    ax.bar(labels, dati,width = 0.5, color="green")
+    plt.xticks(rotation=90)
+    ax.set_ylabel('Numero di studenti')
+    ax.set_xlabel('Percorsi attivati')
+    ax.set_title('Studenti iscritti ai diversi percorsi')
+
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
