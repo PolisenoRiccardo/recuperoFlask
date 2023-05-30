@@ -31,6 +31,7 @@ def grafico():
     
     alunniPerIndirizzo = scuola.groupby('PERCORSO').sum()[['ALUNNIMASCHI','ALUNNIFEMMINE']]
     alunniPerIndirizzo['AlunniTotali'] = alunniPerIndirizzo['ALUNNIMASCHI'] + alunniPerIndirizzo['ALUNNIFEMMINE']
+    alunniPerIndirizzo = alunniPerIndirizzo.sort_values(by='AlunniTotali', ascending = False)
 
     labels = alunniPerIndirizzo.index
     dati = alunniPerIndirizzo['AlunniTotali']
